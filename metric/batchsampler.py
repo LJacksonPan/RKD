@@ -25,6 +25,10 @@ class NPairs(Sampler):
         self.n_batch = iter_per_epoch
         self.class_idx = list(data_source.class_to_idx.values())
         self.images_by_class = index_dataset(data_source)
+        img_by_cls = dict()
+        for key, item in self.images_by_class.items():
+            img_by_cls[key] = item[:250]
+        self.images_by_class = img_by_cls
 
     def __len__(self):
         return self.n_batch

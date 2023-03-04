@@ -1,2 +1,2 @@
-Best Recall@1: 67.7800
-Final Recall@1: 67.7100
+Best Recall@1: 49.5600
+Final Recall@1: 40.3300

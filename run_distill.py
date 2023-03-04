@@ -13,7 +13,7 @@ import torchvision
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 
-from metric.utils import recall
+from metric.utils import recall, aggreement
 from metric.batchsampler import NPairs
 from metric.loss import HardDarkRank, RkdDistance, RKdAngle, L2Triplet, AttentionTransfer
 from model.embedding import LinearEmbedding
@@ -93,27 +93,33 @@ def train(loader, ep):
            torch.Tensor(at_loss_all).mean()))
 
 
-def eval(net, normalize, loader, ep):
+def eval(net1, net2, normalize1, normalize2, loader, ep):
     K = [1]
-    net.eval()
+    net1.eval()
+    net2.eval()
     test_iter = tqdm(loader)
-    embeddings_all, labels_all = [], []
+    embeddings_all1, embeddings_all2, labels_all = [], [], []
 
     with torch.no_grad():
         for images, labels in test_iter:
             images, labels = images.cuda(), labels.cuda()
-            output = net(normalize(images))
-            embeddings_all.append(output.data)
+            output1 = net1(normalize1(images))
+            embeddings_all1.append(output1.data)
+            output2 = net2(normalize2(images))
+            embeddings_all2.append(output2.data)
             labels_all.append(labels.data)
             test_iter.set_description("[Eval][Epoch %d]" % ep)
 
-        embeddings_all = torch.cat(embeddings_all).cpu()
+        embeddings_all1 = torch.cat(embeddings_all1).cpu()
+        embeddings_all2 = torch.cat(embeddings_all2).cpu()
         labels_all = torch.cat(labels_all).cpu()
-        rec = recall(embeddings_all, labels_all, K=K)
+        rec = recall(embeddings_all1, labels_all, K=K)
 
-        for k, r in zip(K, rec):
-            print('[Epoch %d] Recall@%d: [%.4f]\n' % (ep, k, 100 * r))
-    return rec[0]
+        ag = aggreement(embeddings_all1, embeddings_all2, labels_all, K=K)
+
+        for k, r, a in zip(K, rec, ag):
+            print('[Epoch %d] Recall@%d: [%.4f] Agreement: [%.4f]\n' % (ep, k, 100 * r, 100 * a))
+    return rec[0], ag[0]
 
 
 
@@ -249,15 +255,15 @@ if __name__ == '__main__':
     at_criterion = AttentionTransfer()
 
 
-    eval(teacher, teacher_normalize, loader_train_eval, 0)
-    eval(teacher, teacher_normalize, loader_eval, 0)
-    best_train_rec = eval(student, student_normalize, loader_train_eval, 0)
-    best_val_rec = eval(student, student_normalize, loader_eval, 0)
+    eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, 0)
+    eval(student, teacher, student_normalize, teacher_normalize, loader_eval, 0)
+    best_train_rec, _ = eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, 0)
+    best_val_rec, _ = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, 0)
 
     for epoch in range(1, opts.epochs+1):
         train(loader_train_sample, epoch)
-        train_recall = eval(student, student_normalize, loader_train_eval, epoch)
-        val_recall = eval(student, student_normalize, loader_eval, epoch)
+        train_recall, _ = eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, epoch)
+        val_recall, _ = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, epoch)
 
         if best_train_rec < train_recall:
             best_train_rec = train_recall
