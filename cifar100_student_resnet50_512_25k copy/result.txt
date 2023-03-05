@@ -1,0 +1,25 @@
+Best Train Recall@1: 76.4860 Agreement: 55.9240
+Best Test Recall@1: 71.0400 Agreement: 47.2400
+Final Recall@1: 70.6100 Agreement: 71.2000
+
+[Train][Epoch 79] Triplet: 0.00000, Dist: 0.00122, Angle: 0.00303, Dark: 0.000000, At: 0.000000: 100%|█| 100/
+[Epoch 79] Loss: 0.00475, Triplet: 0.00000, Dist: 0.00138, Angle: 0.00336, Dark: 0.00000 At: 0.00000
+
+[Eval][Epoch 79]: 100%|██████████████████████████████████████████████████| 1563/1563 [02:36<00:00,  9.98it/s]
+[Epoch 79] Recall@1: [76.3500] Agreement: [76.5140]
+
+[Eval][Epoch 79]: 100%|████████████████████████████████████████████████████| 313/313 [00:31<00:00, 10.07it/s]
+[Epoch 79] Recall@1: [71.0400] Agreement: [71.5000]
+
+Best Train Recall: 0.7649
+Best Eval Recall: 0.7104
+Best Train Agreement: 0.5592
+Best Eval Agreement: 0.4724
+[Train][Epoch 80] Triplet: 0.00000, Dist: 0.00199, Angle: 0.00477, Dark: 0.000000, At: 0.000000: 100%|█| 100/
+[Epoch 80] Loss: 0.00465, Triplet: 0.00000, Dist: 0.00136, Angle: 0.00329, Dark: 0.00000 At: 0.00000
+
+[Eval][Epoch 80]: 100%|██████████████████████████████████████████████████| 1563/1563 [02:36<00:00,  9.98it/s]
+[Epoch 80] Recall@1: [76.3880] Agreement: [76.5280]
+
+[Eval][Epoch 80]: 100%|████████████████████████████████████████████████████| 313/313 [00:31<00:00, 10.05it/s]
+[Epoch 80] Recall@1: [70.6100] Agreement: [71.2000]
