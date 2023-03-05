@@ -257,13 +257,13 @@ if __name__ == '__main__':
 
     eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, 0)
     eval(student, teacher, student_normalize, teacher_normalize, loader_eval, 0)
-    best_train_rec, _ = eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, 0)
-    best_val_rec, _ = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, 0)
+    best_train_rec, best_train_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, 0)
+    best_val_rec, best_val_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, 0)
 
     for epoch in range(1, opts.epochs+1):
         train(loader_train_sample, epoch)
-        train_recall, _ = eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, epoch)
-        val_recall, _ = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, epoch)
+        train_recall, train_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, epoch)
+        val_recall, val_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, epoch)
 
         if best_train_rec < train_recall:
             best_train_rec = train_recall
@@ -280,9 +280,11 @@ if __name__ == '__main__':
                 os.mkdir(opts.save_dir)
             torch.save(student.state_dict(), "%s/%s" % (opts.save_dir, "last.pth"))
             with open("%s/result.txt" % opts.save_dir, 'w') as f:
-                f.write('Best Train Recall@1: %.4f\n' % (best_train_rec * 100))
-                f.write("Best Test Recall@1: %.4f\n" % (best_val_rec * 100))
-                f.write("Final Recall@1: %.4f\n" % (val_recall * 100))
+                f.write('Best Train Recall@1: %.4f Agreement: %.4f\n' % (best_train_rec * 100, best_train_ag * 100))
+                f.write("Best Test Recall@1: %.4f Agreement: %.4f\n" % (best_val_rec * 100, best_val_ag * 100))
+                f.write("Final Recall@1: %.4f Agreement: %.4f\n" % (val_recall * 100, val_ag * 100))
 
         print("Best Train Recall: %.4f" % best_train_rec)
         print("Best Eval Recall: %.4f" % best_val_rec)
+        print("Best Train Agreement: %.4f" % best_train_ag)
+        print("Best Eval Agreement: %.4f" % best_val_ag)
