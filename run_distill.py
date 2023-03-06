@@ -257,7 +257,6 @@ if __name__ == '__main__':
 
     eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, 0)
     eval(student, teacher, student_normalize, teacher_normalize, loader_eval, 0)
-    assert False
     best_train_rec, best_train_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, 0)
     best_val_rec, best_val_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, 0)
 
