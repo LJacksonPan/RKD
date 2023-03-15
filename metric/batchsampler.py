@@ -27,6 +27,7 @@ class NPairs(Sampler):
         self.images_by_class = index_dataset(data_source)
         img_by_cls = dict()
         for key, item in self.images_by_class.items():
+            # TODO: add portion adjustment to config
             img_by_cls[key] = item[125:375]
         self.images_by_class = img_by_cls
 
