@@ -27,7 +27,7 @@ class NPairs(Sampler):
         self.images_by_class = index_dataset(data_source)
         img_by_cls = dict()
         for key, item in self.images_by_class.items():
-            img_by_cls[key] = item[:500]
+            img_by_cls[key] = item[125:375]
         self.images_by_class = img_by_cls
 
     def __len__(self):
