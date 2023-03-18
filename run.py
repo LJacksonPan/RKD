@@ -28,7 +28,13 @@ def train(net, loader, ep):
     net.train()
     loss_all, norm_all = [], []
     train_iter = tqdm(loader, ncols=80)
+    lbl_count = dict()
     for images, labels in train_iter:
+        # for l in labels:
+        #     l = int(l)
+        #     if l not in lbl_count:
+        #         lbl_count[l] = 0
+        #     lbl_count[l] += 1
         images, labels = images.cuda(), labels.cuda()
         embedding = net(images)
         loss = criterion(embedding, labels)
@@ -38,6 +44,9 @@ def train(net, loader, ep):
         loss.backward()
         optimizer.step()
         train_iter.set_description("[Train][Epoch %d] Loss: %.5f" % (ep, loss.item()))
+    # for l, c in lbl_count.items():
+    #     if c > 250:
+    #         assert False
     print('[Epoch %d] Loss: %.5f\n' % (ep, torch.Tensor(loss_all).mean()))
 
 
@@ -201,15 +210,16 @@ if __name__ == '__main__':
     if opts.mode == "eval":
         print('eval')
         eval(model, loader_train_eval, 0)
+        # eval(model, loader_train_sample, 0)
         eval(model, loader_eval, 0)
     else:
-        train_recall = eval(model, loader_train_eval, 0)
+        # train_recall = eval(model, loader_train_eval, 0)
         val_recall = eval(model, loader_eval, 0)
         best_rec = val_recall
 
         for epoch in range(1, opts.epochs+1):
             train(model, loader_train_sample, epoch)
-            train_recall = eval(model, loader_train_eval, epoch)
+            # train_recall = eval(model, loader_train_eval, epoch)
             val_recall = eval(model, loader_eval, epoch)
 
             if best_rec < val_recall:
