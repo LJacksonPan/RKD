@@ -1,3 +1,0 @@
-Best Train Recall@1: 68.8400
-Best Test Recall@1: 62.0100
-Final Recall@1: 62.0100

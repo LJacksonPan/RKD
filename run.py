@@ -134,6 +134,8 @@ if __name__ == '__main__':
     parser.add_argument('--iter_per_epoch', type=int, default=100)
     parser.add_argument('--recall', default=[1], type=int, nargs='+')
 
+    parser.add_argument('--split_l', default=0, type=int)
+    parser.add_argument('--split_r', default=500, type=int)
     parser.add_argument('--seed', default=random.randint(1, 1000), type=int)
     parser.add_argument('--data', default='data')
     parser.add_argument('--save_dir', default=None)
@@ -185,7 +187,8 @@ if __name__ == '__main__':
     loader_train_sample = DataLoader(dataset_train, batch_sampler=NPairs(dataset_train,
                                                                         opts.batch,
                                                                         m=opts.num_image_per_class,
-                                                                        iter_per_epoch=opts.iter_per_epoch),
+                                                                        iter_per_epoch=opts.iter_per_epoch,
+                                                                        split_l=opts.split_l, split_r=opts.split_r),
                                     pin_memory=True, num_workers=8)
                                     
     loader_train_eval = DataLoader(dataset_train_eval, shuffle=False, batch_size=opts.batch, drop_last=False,

@@ -18,7 +18,7 @@ def index_dataset(dataset: ImageFolder):
 
 
 class NPairs(Sampler):
-    def __init__(self, data_source: ImageFolder, batch_size, m=5, iter_per_epoch=200):
+    def __init__(self, data_source: ImageFolder, batch_size, m=5, iter_per_epoch=200, split_l=0, split_r=500):
         super(Sampler, self).__init__()
         self.m = m
         self.batch_size = batch_size
@@ -28,7 +28,7 @@ class NPairs(Sampler):
         img_by_cls = dict()
         for key, item in self.images_by_class.items():
             # 250 313 376 438 500
-            img_by_cls[key] = item[:250]
+            img_by_cls[key] = item[split_l:split_r]
         self.images_by_class = img_by_cls
 
     def __len__(self):

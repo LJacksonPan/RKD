@@ -180,6 +180,8 @@ if __name__ == '__main__':
     parser.add_argument('--teacher_l2normalize', choices=['true', 'false'], default='true')
     parser.add_argument('--teacher_embedding_size', default=128, type=int)
 
+    parser.add_argument('--split_l', default=0, type=int)
+    parser.add_argument('--split_r', default=500, type=int)
     parser.add_argument('--lr', default=1e-4, type=float)
     parser.add_argument('--data', default='data')
     parser.add_argument('--epochs', default=80, type=int)
@@ -189,6 +191,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr_decay_gamma', type=float, default=0.1)
     parser.add_argument('--save_dir', default=None)
     parser.add_argument('--load', default=None)
+    parser.add_argument('--eval', default=False, required=False)
 
     opts = parser.parse_args()
     student_base = opts.base(pretrained=True)
@@ -220,7 +223,8 @@ if __name__ == '__main__':
     print("Number of images in Test set: %d" % len(dataset_eval))
 
     loader_train_sample = DataLoader(dataset_train, batch_sampler=NPairs(dataset_train, opts.batch, m=5,
-                                                                        iter_per_epoch=opts.iter_per_epoch),
+                                                                        iter_per_epoch=opts.iter_per_epoch, 
+                                                                        split_l=opts.split_l, split_r=opts.split_r),
                                     pin_memory=True, num_workers=8)
     loader_train_eval = DataLoader(dataset_train_eval, shuffle=False, batch_size=opts.batch, drop_last=False,
                                 pin_memory=False, num_workers=8)
@@ -261,32 +265,33 @@ if __name__ == '__main__':
     best_val_rec, best_val_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, 0)
     # assert False
 
-    for epoch in range(1, opts.epochs+1):
-        train(loader_train_sample, epoch)
-        # train_recall, train_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, epoch)
-        val_recall, val_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, epoch)
+    if not eval:
+        for epoch in range(1, opts.epochs+1):
+            train(loader_train_sample, epoch)
+            # train_recall, train_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_train_eval, epoch)
+            val_recall, val_ag = eval(student, teacher, student_normalize, teacher_normalize, loader_eval, epoch)
 
-        # if best_train_rec < train_recall:
-        #     best_train_rec = train_recall
-        # if best_train_ag < train_ag:
-        #     best_train_ag = train_ag
+            # if best_train_rec < train_recall:
+            #     best_train_rec = train_recall
+            # if best_train_ag < train_ag:
+            #     best_train_ag = train_ag
 
-        if best_val_rec < val_recall:
-            best_val_rec = val_recall
-            best_val_ag = val_ag
+            if best_val_rec < val_recall:
+                best_val_rec = val_recall
+                best_val_ag = val_ag
+                if opts.save_dir is not None:
+                    if not os.path.isdir(opts.save_dir):
+                        os.mkdir(opts.save_dir)
+                    torch.save(student.state_dict(), "%s/%s" % (opts.save_dir, "best.pth"))
+
             if opts.save_dir is not None:
                 if not os.path.isdir(opts.save_dir):
                     os.mkdir(opts.save_dir)
-                torch.save(student.state_dict(), "%s/%s" % (opts.save_dir, "best.pth"))
-
-        if opts.save_dir is not None:
-            if not os.path.isdir(opts.save_dir):
-                os.mkdir(opts.save_dir)
-            torch.save(student.state_dict(), "%s/%s" % (opts.save_dir, "last.pth"))
-            with open("%s/result.txt" % opts.save_dir, 'w') as f:
-                # f.write('Best Train Recall@1: %.4f Agreement: %.4f\n' % (best_train_rec * 100, best_train_ag * 100))
-                f.write("Best Test Recall@1: %.4f Agreement: %.4f\n" % (best_val_rec * 100, best_val_ag * 100))
-                f.write("Final Recall@1: %.4f Agreement: %.4f\n" % (val_recall * 100, val_ag * 100))
+                torch.save(student.state_dict(), "%s/%s" % (opts.save_dir, "last.pth"))
+                with open("%s/result.txt" % opts.save_dir, 'w') as f:
+                    # f.write('Best Train Recall@1: %.4f Agreement: %.4f\n' % (best_train_rec * 100, best_train_ag * 100))
+                    f.write("Best Test Recall@1: %.4f Agreement: %.4f\n" % (best_val_rec * 100, best_val_ag * 100))
+                    f.write("Final Recall@1: %.4f Agreement: %.4f\n" % (val_recall * 100, val_ag * 100))
 
         # print("Best Train Recall: %.4f" % best_train_rec)
         print("Best Eval Recall: %.4f" % best_val_rec)

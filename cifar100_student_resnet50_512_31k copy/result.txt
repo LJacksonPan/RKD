@@ -1,2 +1,0 @@
-Best Test Recall@1: 70.7800 Agreement: 71.3800
-Final Recall@1: 70.7300 Agreement: 71.3800
